@@ -117,12 +117,58 @@
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
+        .content-wrapper {
+            margin-bottom: 20px;
+        }
+
         #canvas {
             width: 100%;
             height: 500px;
             border: 2px solid #e0e0e0;
             border-radius: 12px;
             background: #f8f9fa;
+            margin-bottom: 20px;
+        }
+
+        .image-section {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            background: #f8f9fa;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-section h2 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .image-container {
+            width: 100%;
+            max-width: 400px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .no-image {
+            color: #adb5bd;
+            font-size: 1.1em;
         }
 
         .status {
@@ -150,12 +196,6 @@
 <body>
     <div class="container">
         <h1>🔄 Graph Walker</h1>
-        
-        <div class="input-section">
-            <label for="sequence">Enter Sequence (e.g., A -> B -> C -> D):</label>
-            <input type="text" id="sequence" placeholder="A -> B -> C -> D">
-            <div class="error" id="error"></div>
-        </div>
 
         <div class="controls">
             <button class="btn-start" onclick="startWalk()">Start Walk</button>
@@ -163,10 +203,19 @@
             <button class="btn-next" id="nextBtn" onclick="nextNode()" disabled>Next</button>
         </div>
 
-        <canvas id="canvas"></canvas>
+        <div class="content-wrapper">
+            <canvas id="canvas"></canvas>
+            
+            <div class="image-section">
+                <h2>Node Image</h2>
+                <div class="image-container" id="imageContainer">
+                    <span class="no-image">Click "Start Walk" to begin</span>
+                </div>
+            </div>
+        </div>
 
         <div class="status">
-            <span id="status">Enter a sequence and click "Start Walk" to begin</span>
+            <span id="status">Click "Start Walk" to begin the sequence</span>
         </div>
     </div>
 
@@ -191,6 +240,36 @@
                 { from: 'B', to: 'D' },
                 { from: 'C', to: 'F' },
                 { from: 'F', to: 'D' }
+            ],
+            sequence: [
+                {
+                    node: 'A',
+                    image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzY2N2VlYSIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iNjAiIGZpbGw9IiNmZmYiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSI0OCIgZmlsbD0iIzY2N2VlYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkE8L3RleHQ+PC9zdmc+'
+                },
+                {
+                    node: 'B',
+                    image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzUxY2Y2NiIvPjxyZWN0IHg9IjQwIiB5PSI0MCIgd2lkdGg9IjEyMCIgaGVpZ2h0PSIxMjAiIGZpbGw9IiNmZmYiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSI0OCIgZmlsbD0iIzUxY2Y2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkI8L3RleHQ+PC9zdmc+'
+                },
+                {
+                    node: 'C',
+                    image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmNmI2YiIvPjxwb2x5Z29uIHBvaW50cz0iMTAwLDMwIDE3MCwxNzAgMzAsMTcwIiBmaWxsPSIjZmZmIi8+PHRleHQgeD0iNTAlIiB5PSI1NSUiIGZvbnQtc2l6ZT0iNDgiIGZpbGw9IiNmZjZiNmIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5DPC90ZXh0Pjwvc3ZnPg=='
+                },
+                {
+                    node: 'F',
+                    image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmYzEwNyIvPjxwb2x5Z29uIHBvaW50cz0iMTAwLDQwIDEzMCw4MCAxODAsOTAgMTQwLDEzMCAxNTAsMTgwIDEwMCwxNTAgNTAsMTgwIDYwLDEzMCAyMCw5MCA3MCw4MCIgZmlsbD0iI2ZmZiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjQ4IiBmaWxsPSIjZmZjMTA3IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+RjwvdGV4dD48L3N2Zz4='
+                },
+                {
+                    node: 'D',
+                    image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzc2NGJhMiIvPjxyZWN0IHg9IjUwIiB5PSI1MCIgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNmZmYiIHRyYW5zZm9ybT0icm90YXRlKDQ1IDEwMCAxMDApIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iNDgiIGZpbGw9IiM3NjRiYTIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5EPC90ZXh0Pjwvc3ZnPg=='
+                },
+                {
+                    node: 'E',
+                    image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzIwYzk5NyIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iNzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxNSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjQ4IiBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+RTwvdGV4dD48L3N2Zz4='
+                },
+                {
+                    node: 'A',
+                    image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzY2N2VlYSIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iNjAiIGZpbGw9IiNmZmYiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSI0OCIgZmlsbD0iIzY2N2VlYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkE8L3RleHQ+PC9zdmc+'
+                }
             ]
         };
 
@@ -235,8 +314,8 @@
             if (currentIndex >= 0 && currentIndex < currentSequence.length - 1) {
                 ctx.strokeStyle = '#667eea';
                 ctx.lineWidth = 4;
-                const fromNode = graphData.nodes.find(n => n.id === currentSequence[currentIndex]);
-                const toNode = graphData.nodes.find(n => n.id === currentSequence[currentIndex + 1]);
+                const fromNode = graphData.nodes.find(n => n.id === currentSequence[currentIndex].node);
+                const toNode = graphData.nodes.find(n => n.id === currentSequence[currentIndex + 1].node);
                 if (fromNode && toNode) {
                     drawArrow(fromNode.x, fromNode.y, toNode.x, toNode.y);
                 }
@@ -244,8 +323,8 @@
 
             // Draw nodes
             graphData.nodes.forEach((node, index) => {
-                const isActive = currentIndex >= 0 && node.id === currentSequence[currentIndex];
-                const isInPath = currentSequence.includes(node.id);
+                const isActive = currentIndex >= 0 && node.id === currentSequence[currentIndex].node;
+                const isInPath = currentSequence.some(seq => seq.node === node.id);
                 
                 ctx.beginPath();
                 ctx.arc(node.x, node.y, 30, 0, Math.PI * 2);
@@ -309,32 +388,11 @@
         }
 
         function startWalk() {
-            const input = document.getElementById('sequence').value.trim();
-            const errorEl = document.getElementById('error');
-            errorEl.textContent = '';
-
-            if (!input) {
-                errorEl.textContent = 'Please enter a sequence';
-                return;
-            }
-
-            // Parse sequence
-            const sequence = input.split('->').map(s => s.trim().toUpperCase());
-            
-            // Validate nodes exist
-            const invalidNodes = sequence.filter(nodeId => 
-                !graphData.nodes.find(n => n.id === nodeId)
-            );
-
-            if (invalidNodes.length > 0) {
-                errorEl.textContent = `Invalid nodes: ${invalidNodes.join(', ')}`;
-                return;
-            }
-
-            currentSequence = sequence;
+            currentSequence = graphData.sequence;
             currentIndex = 0;
             updateControls();
             updateStatus();
+            updateImage();
             drawGraph();
         }
 
@@ -343,6 +401,7 @@
                 currentIndex++;
                 updateControls();
                 updateStatus();
+                updateImage();
                 animateTransition();
             }
         }
@@ -352,6 +411,7 @@
                 currentIndex--;
                 updateControls();
                 updateStatus();
+                updateImage();
                 animateTransition();
             }
         }
@@ -364,7 +424,19 @@
         function updateStatus() {
             const statusEl = document.getElementById('status');
             if (currentIndex >= 0 && currentIndex < currentSequence.length) {
-                statusEl.innerHTML = `Current Node: <strong>${currentSequence[currentIndex]}</strong> | Step: <strong>${currentIndex + 1}/${currentSequence.length}</strong>`;
+                statusEl.innerHTML = `Current Node: <strong>${currentSequence[currentIndex].node}</strong> | Step: <strong>${currentIndex + 1}/${currentSequence.length}</strong>`;
+            }
+        }
+
+        function updateImage() {
+            const imageContainer = document.getElementById('imageContainer');
+            if (currentIndex >= 0 && currentIndex < currentSequence.length) {
+                const currentStep = currentSequence[currentIndex];
+                if (currentStep.image) {
+                    imageContainer.innerHTML = `<img src="${currentStep.image}" alt="Node ${currentStep.node}">`;
+                } else {
+                    imageContainer.innerHTML = '<span class="no-image">No image available</span>';
+                }
             }
         }
 
