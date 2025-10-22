@@ -37,31 +37,6 @@
             font-size: 2em;
         }
 
-        .input-section {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-weight: 600;
-        }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
         .controls {
             display: flex;
             justify-content: center;
@@ -184,13 +159,6 @@
         .status strong {
             color: #667eea;
         }
-
-        .error {
-            color: #ff6b6b;
-            text-align: center;
-            margin-top: 10px;
-            font-weight: 600;
-        }
     </style>
 </head>
 <body>
@@ -220,55 +188,171 @@
     </div>
 
     <script>
-        // Graph data
+        // Graph data following GraphWalker JSON schema
         const graphData = {
-            nodes: [
-                { id: 'A', x: 150, y: 150, label: 'Node A' },
-                { id: 'B', x: 400, y: 100, label: 'Node B' },
-                { id: 'C', x: 650, y: 150, label: 'Node C' },
-                { id: 'D', x: 400, y: 300, label: 'Node D' },
-                { id: 'E', x: 150, y: 350, label: 'Node E' },
-                { id: 'F', x: 650, y: 350, label: 'Node F' }
-            ],
-            edges: [
-                { from: 'A', to: 'B' },
-                { from: 'B', to: 'C' },
-                { from: 'C', to: 'D' },
-                { from: 'D', to: 'A' },
-                { from: 'A', to: 'E' },
-                { from: 'E', to: 'D' },
-                { from: 'B', to: 'D' },
-                { from: 'C', to: 'F' },
-                { from: 'F', to: 'D' }
+            name: "Sample Graph Model",
+            selectedModelIndex: 0,
+            selectedElementId: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+            models: [
+                {
+                    id: "model-001",
+                    name: "Main Navigation Flow",
+                    generator: "random(edge_coverage(100))",
+                    startElementId: "vertex-a",
+                    vertices: [
+                        {
+                            id: "vertex-a",
+                            name: "Start",
+                            properties: {
+                                x: 150,
+                                y: 150
+                            }
+                        },
+                        {
+                            id: "vertex-b",
+                            name: "Dashboard",
+                            properties: {
+                                x: 400,
+                                y: 100
+                            }
+                        },
+                        {
+                            id: "vertex-c",
+                            name: "Profile",
+                            properties: {
+                                x: 650,
+                                y: 150
+                            }
+                        },
+                        {
+                            id: "vertex-d",
+                            name: "Settings",
+                            properties: {
+                                x: 400,
+                                y: 300
+                            }
+                        },
+                        {
+                            id: "vertex-e",
+                            name: "Help",
+                            properties: {
+                                x: 150,
+                                y: 350
+                            }
+                        },
+                        {
+                            id: "vertex-f",
+                            name: "Logout",
+                            properties: {
+                                x: 650,
+                                y: 350
+                            }
+                        }
+                    ],
+                    edges: [
+                        {
+                            id: "edge-a-b",
+                            name: "e_NavigateToDashboard",
+                            sourceVertexId: "vertex-a",
+                            targetVertexId: "vertex-b",
+                            actions: ["clickDashboard"],
+                            guard: ""
+                        },
+                        {
+                            id: "edge-b-c",
+                            name: "e_ViewProfile",
+                            sourceVertexId: "vertex-b",
+                            targetVertexId: "vertex-c",
+                            actions: ["clickProfile"],
+                            guard: ""
+                        },
+                        {
+                            id: "edge-c-d",
+                            name: "e_OpenSettings",
+                            sourceVertexId: "vertex-c",
+                            targetVertexId: "vertex-d",
+                            actions: ["clickSettings"],
+                            guard: ""
+                        },
+                        {
+                            id: "edge-d-a",
+                            name: "e_BackToStart",
+                            sourceVertexId: "vertex-d",
+                            targetVertexId: "vertex-a",
+                            actions: ["clickHome"],
+                            guard: ""
+                        },
+                        {
+                            id: "edge-a-e",
+                            name: "e_GetHelp",
+                            sourceVertexId: "vertex-a",
+                            targetVertexId: "vertex-e",
+                            actions: ["clickHelp"],
+                            guard: ""
+                        },
+                        {
+                            id: "edge-e-d",
+                            name: "e_HelpToSettings",
+                            sourceVertexId: "vertex-e",
+                            targetVertexId: "vertex-d",
+                            actions: ["navigateSettings"],
+                            guard: ""
+                        },
+                        {
+                            id: "edge-b-d",
+                            name: "e_QuickSettings",
+                            sourceVertexId: "vertex-b",
+                            targetVertexId: "vertex-d",
+                            actions: ["quickAccess"],
+                            guard: ""
+                        },
+                        {
+                            id: "edge-c-f",
+                            name: "e_Logout",
+                            sourceVertexId: "vertex-c",
+                            targetVertexId: "vertex-f",
+                            actions: ["clickLogout"],
+                            guard: ""
+                        },
+                        {
+                            id: "edge-f-d",
+                            name: "e_LogoutToSettings",
+                            sourceVertexId: "vertex-f",
+                            targetVertexId: "vertex-d",
+                            actions: ["goToSettings"],
+                            guard: ""
+                        }
+                    ]
+                }
             ],
             sequence: [
                 {
-                    node: 'A',
-                    image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzY2N2VlYSIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iNjAiIGZpbGw9IiNmZmYiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSI0OCIgZmlsbD0iIzY2N2VlYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkE8L3RleHQ+PC9zdmc+'
+                    node: "vertex-a",
+                    image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzY2N2VlYSIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iNjAiIGZpbGw9IiNmZmYiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIyNCIgZmlsbD0iIzY2N2VlYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlN0YXJ0PC90ZXh0Pjwvc3ZnPg=="
                 },
                 {
-                    node: 'B',
-                    image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzUxY2Y2NiIvPjxyZWN0IHg9IjQwIiB5PSI0MCIgd2lkdGg9IjEyMCIgaGVpZ2h0PSIxMjAiIGZpbGw9IiNmZmYiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSI0OCIgZmlsbD0iIzUxY2Y2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkI8L3RleHQ+PC9zdmc+'
+                    node: "vertex-b",
+                    image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzUxY2Y2NiIvPjxyZWN0IHg9IjQwIiB5PSI0MCIgd2lkdGg9IjEyMCIgaGVpZ2h0PSIxMjAiIGZpbGw9IiNmZmYiLz48dGV4dCB4PSI1MCUiIHk9IjU1JSIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzUxY2Y2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkRhc2hib2FyZDwvdGV4dD48L3N2Zz4="
                 },
                 {
-                    node: 'C',
-                    image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmNmI2YiIvPjxwb2x5Z29uIHBvaW50cz0iMTAwLDMwIDE3MCwxNzAgMzAsMTcwIiBmaWxsPSIjZmZmIi8+PHRleHQgeD0iNTAlIiB5PSI1NSUiIGZvbnQtc2l6ZT0iNDgiIGZpbGw9IiNmZjZiNmIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5DPC90ZXh0Pjwvc3ZnPg=='
+                    node: "vertex-c",
+                    image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmNmI2YiIvPjxwb2x5Z29uIHBvaW50cz0iMTAwLDMwIDE3MCwxNzAgMzAsMTcwIiBmaWxsPSIjZmZmIi8+PHRleHQgeD0iNTAlIiB5PSI1NSUiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiNmZjZiNmIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5Qcm9maWxlPC90ZXh0Pjwvc3ZnPg=="
                 },
                 {
-                    node: 'F',
-                    image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmYzEwNyIvPjxwb2x5Z29uIHBvaW50cz0iMTAwLDQwIDEzMCw4MCAxODAsOTAgMTQwLDEzMCAxNTAsMTgwIDEwMCwxNTAgNTAsMTgwIDYwLDEzMCAyMCw5MCA3MCw4MCIgZmlsbD0iI2ZmZiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjQ4IiBmaWxsPSIjZmZjMTA3IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+RjwvdGV4dD48L3N2Zz4='
+                    node: "vertex-f",
+                    image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmYzEwNyIvPjxwb2x5Z29uIHBvaW50cz0iMTAwLDQwIDEzMCw4MCAxODAsOTAgMTQwLDEzMCAxNTAsMTgwIDEwMCwxNTAgNTAsMTgwIDYwLDEzMCAyMCw5MCA3MCw4MCIgZmlsbD0iI2ZmZiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTUlIiBmb250LXNpemU9IjI0IiBmaWxsPSIjZmZjMTA3IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+TG9nb3V0PC90ZXh0Pjwvc3ZnPg=="
                 },
                 {
-                    node: 'D',
-                    image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzc2NGJhMiIvPjxyZWN0IHg9IjUwIiB5PSI1MCIgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNmZmYiIHRyYW5zZm9ybT0icm90YXRlKDQ1IDEwMCAxMDApIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iNDgiIGZpbGw9IiM3NjRiYTIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5EPC90ZXh0Pjwvc3ZnPg=='
+                    node: "vertex-d",
+                    image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzc2NGJhMiIvPjxyZWN0IHg9IjUwIiB5PSI1MCIgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNmZmYiIHRyYW5zZm9ybT0icm90YXRlKDQ1IDEwMCAxMDApIi8+PHRleHQgeD0iNTAlIiB5PSI1NSUiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiM3NjRiYTIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5TZXR0aW5nczwvdGV4dD48L3N2Zz4="
                 },
                 {
-                    node: 'E',
-                    image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzIwYzk5NyIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iNzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxNSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjQ4IiBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+RTwvdGV4dD48L3N2Zz4='
+                    node: "vertex-e",
+                    image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzIwYzk5NyIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iNzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxNSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjI0IiBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+SGVscDwvdGV4dD48L3N2Zz4="
                 },
                 {
-                    node: 'A',
-                    image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzY2N2VlYSIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iNjAiIGZpbGw9IiNmZmYiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSI0OCIgZmlsbD0iIzY2N2VlYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkE8L3RleHQ+PC9zdmc+'
+                    node: "vertex-a",
+                    image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzY2N2VlYSIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iNjAiIGZpbGw9IiNmZmYiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIyNCIgZmlsbD0iIzY2N2VlYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlN0YXJ0PC90ZXh0Pjwvc3ZnPg=="
                 }
             ]
         };
@@ -277,11 +361,16 @@
         let currentSequence = [];
         let currentIndex = -1;
         let canvas, ctx;
+        let currentModel;
 
         // Initialize
         window.onload = function() {
             canvas = document.getElementById('canvas');
             ctx = canvas.getContext('2d');
+            
+            // Load the first model
+            currentModel = graphData.models[graphData.selectedModelIndex];
+            
             resizeCanvas();
             drawGraph();
         };
@@ -302,11 +391,11 @@
             // Draw edges
             ctx.strokeStyle = '#adb5bd';
             ctx.lineWidth = 2;
-            graphData.edges.forEach(edge => {
-                const fromNode = graphData.nodes.find(n => n.id === edge.from);
-                const toNode = graphData.nodes.find(n => n.id === edge.to);
+            currentModel.edges.forEach(edge => {
+                const fromNode = currentModel.vertices.find(v => v.id === edge.sourceVertexId);
+                const toNode = currentModel.vertices.find(v => v.id === edge.targetVertexId);
                 if (fromNode && toNode) {
-                    drawArrow(fromNode.x, fromNode.y, toNode.x, toNode.y);
+                    drawArrow(fromNode.properties.x, fromNode.properties.y, toNode.properties.x, toNode.properties.y);
                 }
             });
 
@@ -314,20 +403,20 @@
             if (currentIndex >= 0 && currentIndex < currentSequence.length - 1) {
                 ctx.strokeStyle = '#667eea';
                 ctx.lineWidth = 4;
-                const fromNode = graphData.nodes.find(n => n.id === currentSequence[currentIndex].node);
-                const toNode = graphData.nodes.find(n => n.id === currentSequence[currentIndex + 1].node);
+                const fromNode = currentModel.vertices.find(v => v.id === currentSequence[currentIndex].node);
+                const toNode = currentModel.vertices.find(v => v.id === currentSequence[currentIndex + 1].node);
                 if (fromNode && toNode) {
-                    drawArrow(fromNode.x, fromNode.y, toNode.x, toNode.y);
+                    drawArrow(fromNode.properties.x, fromNode.properties.y, toNode.properties.x, toNode.properties.y);
                 }
             }
 
             // Draw nodes
-            graphData.nodes.forEach((node, index) => {
-                const isActive = currentIndex >= 0 && node.id === currentSequence[currentIndex].node;
-                const isInPath = currentSequence.some(seq => seq.node === node.id);
+            currentModel.vertices.forEach(vertex => {
+                const isActive = currentIndex >= 0 && vertex.id === currentSequence[currentIndex].node;
+                const isInPath = currentSequence.some(seq => seq.node === vertex.id);
                 
                 ctx.beginPath();
-                ctx.arc(node.x, node.y, 30, 0, Math.PI * 2);
+                ctx.arc(vertex.properties.x, vertex.properties.y, 30, 0, Math.PI * 2);
                 
                 if (isActive) {
                     ctx.fillStyle = '#667eea';
@@ -347,12 +436,13 @@
                 ctx.stroke();
                 ctx.shadowBlur = 0;
 
-                // Draw label
+                // Draw label (shortened for display)
                 ctx.fillStyle = isActive ? 'white' : '#495057';
-                ctx.font = 'bold 18px sans-serif';
+                ctx.font = 'bold 12px sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillText(node.id, node.x, node.y);
+                const label = vertex.name.length > 8 ? vertex.name.substring(0, 7) + '...' : vertex.name;
+                ctx.fillText(label, vertex.properties.x, vertex.properties.y);
             });
         }
 
@@ -424,7 +514,9 @@
         function updateStatus() {
             const statusEl = document.getElementById('status');
             if (currentIndex >= 0 && currentIndex < currentSequence.length) {
-                statusEl.innerHTML = `Current Node: <strong>${currentSequence[currentIndex].node}</strong> | Step: <strong>${currentIndex + 1}/${currentSequence.length}</strong>`;
+                const currentVertex = currentModel.vertices.find(v => v.id === currentSequence[currentIndex].node);
+                const nodeName = currentVertex ? currentVertex.name : currentSequence[currentIndex].node;
+                statusEl.innerHTML = `Current Node: <strong>${nodeName}</strong> | Step: <strong>${currentIndex + 1}/${currentSequence.length}</strong>`;
             }
         }
 
