@@ -232,128 +232,24 @@
                     generator: "random(edge_coverage(100))",
                     startElementId: "vertex-a",
                     vertices: [
-                        {
-                            id: "vertex-a",
-                            name: "Start",
-                            properties: {
-                                x: 150,
-                                y: 150
-                            }
-                        },
-                        {
-                            id: "vertex-b",
-                            name: "Dashboard",
-                            properties: {
-                                x: 400,
-                                y: 100
-                            }
-                        },
-                        {
-                            id: "vertex-c",
-                            name: "Profile",
-                            properties: {
-                                x: 650,
-                                y: 150
-                            }
-                        },
-                        {
-                            id: "vertex-d",
-                            name: "Settings",
-                            properties: {
-                                x: 400,
-                                y: 300
-                            }
-                        },
-                        {
-                            id: "vertex-e",
-                            name: "Help",
-                            properties: {
-                                x: 150,
-                                y: 350
-                            }
-                        },
-                        {
-                            id: "vertex-f",
-                            name: "Logout",
-                            properties: {
-                                x: 650,
-                                y: 350
-                            }
-                        }
+                        { id: "vertex-a", name: "Start", properties: { x: 150, y: 150 } },
+                        { id: "vertex-b", name: "Dashboard", properties: { x: 400, y: 100 } },
+                        { id: "vertex-c", name: "Profile", properties: { x: 650, y: 150 } },
+                        { id: "vertex-d", name: "Settings", properties: { x: 400, y: 300 } },
+                        { id: "vertex-e", name: "Help", properties: { x: 150, y: 350 } },
+                        { id: "vertex-f", name: "Logout", properties: { x: 650, y: 350 } }
                     ],
                     edges: [
-                        {
-                            id: "edge-a-b",
-                            name: "e_NavigateToDashboard",
-                            sourceVertexId: "vertex-a",
-                            targetVertexId: "vertex-b",
-                            actions: ["clickDashboard"],
-                            guard: ""
-                        },
-                        {
-                            id: "edge-b-c",
-                            name: "e_ViewProfile",
-                            sourceVertexId: "vertex-b",
-                            targetVertexId: "vertex-c",
-                            actions: ["clickProfile"],
-                            guard: ""
-                        },
-                        {
-                            id: "edge-c-d",
-                            name: "e_OpenSettings",
-                            sourceVertexId: "vertex-c",
-                            targetVertexId: "vertex-d",
-                            actions: ["clickSettings"],
-                            guard: ""
-                        },
-                        {
-                            id: "edge-d-a",
-                            name: "e_BackToStart",
-                            sourceVertexId: "vertex-d",
-                            targetVertexId: "vertex-a",
-                            actions: ["clickHome"],
-                            guard: ""
-                        },
-                        {
-                            id: "edge-a-e",
-                            name: "e_GetHelp",
-                            sourceVertexId: "vertex-a",
-                            targetVertexId: "vertex-e",
-                            actions: ["clickHelp"],
-                            guard: ""
-                        },
-                        {
-                            id: "edge-e-d",
-                            name: "e_HelpToSettings",
-                            sourceVertexId: "vertex-e",
-                            targetVertexId: "vertex-d",
-                            actions: ["navigateSettings"],
-                            guard: ""
-                        },
-                        {
-                            id: "edge-b-d",
-                            name: "e_QuickSettings",
-                            sourceVertexId: "vertex-b",
-                            targetVertexId: "vertex-d",
-                            actions: ["quickAccess"],
-                            guard: ""
-                        },
-                        {
-                            id: "edge-c-f",
-                            name: "e_Logout",
-                            sourceVertexId: "vertex-c",
-                            targetVertexId: "vertex-f",
-                            actions: ["clickLogout"],
-                            guard: ""
-                        },
-                        {
-                            id: "edge-f-d",
-                            name: "e_LogoutToSettings",
-                            sourceVertexId: "vertex-f",
-                            targetVertexId: "vertex-d",
-                            actions: ["goToSettings"],
-                            guard: ""
-                        }
+                        { id: "edge-a-b", name: "e_NavigateToDashboard", sourceVertexId: "vertex-a", targetVertexId: "vertex-b", actions: ["clickDashboard"], guard: "" },
+                        { id: "edge-b-c", name: "e_ViewProfile", sourceVertexId: "vertex-b", targetVertexId: "vertex-c", actions: ["clickProfile"], guard: "" },
+                        { id: "edge-c-d", name: "e_OpenSettings", sourceVertexId: "vertex-c", targetVertexId: "vertex-d", actions: ["clickSettings"], guard: "" },
+                        { id: "edge-d-a", name: "e_BackToStart", sourceVertexId: "vertex-d", targetVertexId: "vertex-a", actions: ["clickHome"], guard: "" },
+                        { id: "edge-a-e", name: "e_GetHelp", sourceVertexId: "vertex-a", targetVertexId: "vertex-e", actions: ["clickHelp"], guard: "" },
+                        { id: "edge-e-d", name: "e_HelpToSettings", sourceVertexId: "vertex-e", targetVertexId: "vertex-d", actions: ["navigateSettings"], guard: "" },
+                        { id: "edge-b-d", name: "e_QuickSettings", sourceVertexId: "vertex-b", targetVertexId: "vertex-d", actions: ["quickAccess"], guard: "" },
+                        { id: "edge-c-f", name: "e_Logout", sourceVertexId: "vertex-c", targetVertexId: "vertex-f", actions: ["clickLogout"], guard: "" },
+                        { id: "edge-f-d", name: "e_LogoutToSettings", sourceVertexId: "vertex-f", targetVertexId: "vertex-d", actions: ["goToSettings"], guard: "" },
+                        { id: "edge-a-a", name: "e_SelfLoop", sourceVertexId: "vertex-a", targetVertexId: "vertex-a", actions: ["refresh"], guard: "" }
                     ]
                 }
             ],
@@ -374,13 +270,10 @@
             ]
         };
 
-        // State
         let currentSequence = [];
         let currentIndex = -1;
         let canvas, ctx;
         let currentModel;
-        
-        // Zoom and pan state
         let scale = 1;
         let offsetX = 0;
         let offsetY = 0;
@@ -388,24 +281,22 @@
         let dragStartX = 0;
         let dragStartY = 0;
 
-        // Initialize
+        // Track duplicate edges for curve calculation
+        let edgeCounts = {};
+
         window.onload = function() {
             canvas = document.getElementById('canvas');
             ctx = canvas.getContext('2d');
-            
-            // Load the first model
             currentModel = graphData.models[graphData.selectedModelIndex];
             
+            calculateEdgeCounts();
             resizeCanvas();
             fitToScreen();
             
-            // Add mouse event listeners for panning
             canvas.addEventListener('mousedown', handleMouseDown);
             canvas.addEventListener('mousemove', handleMouseMove);
             canvas.addEventListener('mouseup', handleMouseUp);
             canvas.addEventListener('mouseleave', handleMouseUp);
-            
-            // Add wheel event for zoom
             canvas.addEventListener('wheel', handleWheel);
         };
 
@@ -419,19 +310,28 @@
             canvas.height = canvas.offsetHeight;
         }
 
+        function calculateEdgeCounts() {
+            edgeCounts = {};
+            currentModel.edges.forEach(edge => {
+                const key = `${edge.sourceVertexId}-${edge.targetVertexId}`;
+                const reverseKey = `${edge.targetVertexId}-${edge.sourceVertexId}`;
+                
+                if (!edgeCounts[key]) edgeCounts[key] = [];
+                edgeCounts[key].push(edge.id);
+                
+                if (!edgeCounts[reverseKey]) edgeCounts[reverseKey] = [];
+            });
+        }
+
         function drawGraph() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Save the context state
             ctx.save();
-            
-            // Apply transformations
             ctx.translate(offsetX, offsetY);
             ctx.scale(scale, scale);
 
-            // Draw edges
             ctx.strokeStyle = '#adb5bd';
             ctx.lineWidth = 2 / scale;
+            
             currentModel.edges.forEach(edge => {
                 const fromNode = currentModel.vertices.find(v => v.id === edge.sourceVertexId);
                 const toNode = currentModel.vertices.find(v => v.id === edge.targetVertexId);
@@ -439,11 +339,20 @@
                     const isActiveEdge = currentIndex >= 0 && 
                         currentSequence[currentIndex].type === 'edge' && 
                         currentSequence[currentIndex].id === edge.id;
-                    drawArrow(fromNode.properties.x, fromNode.properties.y, toNode.properties.x, toNode.properties.y, edge.name, isActiveEdge);
+                    
+                    const key = `${edge.sourceVertexId}-${edge.targetVertexId}`;
+                    const reverseKey = `${edge.targetVertexId}-${edge.sourceVertexId}`;
+                    const edgeIndex = edgeCounts[key].indexOf(edge.id);
+                    const hasReverse = edgeCounts[reverseKey] && edgeCounts[reverseKey].length > 0;
+                    
+                    drawCurvedArrow(
+                        fromNode.properties.x, fromNode.properties.y,
+                        toNode.properties.x, toNode.properties.y,
+                        edge.name, isActiveEdge, edgeIndex, hasReverse
+                    );
                 }
             });
 
-            // Draw nodes
             currentModel.vertices.forEach(vertex => {
                 const isActive = currentIndex >= 0 && 
                     currentSequence[currentIndex].type === 'vertex' && 
@@ -471,7 +380,6 @@
                 ctx.stroke();
                 ctx.shadowBlur = 0;
 
-                // Draw label (shortened for display)
                 ctx.fillStyle = isActive ? 'white' : '#495057';
                 ctx.font = `bold ${12 / scale}px sans-serif`;
                 ctx.textAlign = 'center';
@@ -480,85 +388,141 @@
                 ctx.fillText(label, vertex.properties.x, vertex.properties.y);
             });
             
-            // Restore the context state
             ctx.restore();
         }
 
-        function drawArrow(x1, y1, x2, y2, edgeName, isHighlighted) {
-            const angle = Math.atan2(y2 - y1, x2 - x1);
-            const radius = 30;
+        function drawCurvedArrow(x1, y1, x2, y2, edgeName, isHighlighted, edgeIndex, hasReverse) {
+            const isSelfLoop = (x1 === x2 && y1 === y2);
             
-            const startX = x1 + radius * Math.cos(angle);
-            const startY = y1 + radius * Math.sin(angle);
-            const endX = x2 - radius * Math.cos(angle);
-            const endY = y2 - radius * Math.sin(angle);
-
-            // Use highlighted style if this edge is active
             if (isHighlighted) {
                 ctx.strokeStyle = '#667eea';
                 ctx.lineWidth = 4 / scale;
             }
 
+            if (isSelfLoop) {
+                drawSelfLoop(x1, y1, edgeName, isHighlighted);
+            } else {
+                const curveOffset = hasReverse ? 20 + (edgeIndex * 15) : 0;
+                drawCurvedEdge(x1, y1, x2, y2, curveOffset, edgeName, isHighlighted);
+            }
+
+            if (isHighlighted) {
+                ctx.strokeStyle = '#adb5bd';
+                ctx.lineWidth = 2 / scale;
+            }
+        }
+
+        function drawSelfLoop(x, y, edgeName, isHighlighted) {
+            const radius = 30;
+            const loopRadius = 40;
+            const loopOffsetX = 0;
+            const loopOffsetY = -radius - loopRadius;
+            
             ctx.beginPath();
-            ctx.moveTo(startX, startY);
-            ctx.lineTo(endX, endY);
+            ctx.arc(x + loopOffsetX, y + loopOffsetY, loopRadius, 0, Math.PI * 2);
             ctx.stroke();
 
-            // Arrow head
-            const headLength = 15;
+            const arrowX = x;
+            const arrowY = y - radius;
+            const arrowAngle = -Math.PI / 2;
+            const headLength = 12;
+            
             ctx.beginPath();
-            ctx.moveTo(endX, endY);
+            ctx.moveTo(arrowX, arrowY);
             ctx.lineTo(
-                endX - headLength * Math.cos(angle - Math.PI / 6),
-                endY - headLength * Math.sin(angle - Math.PI / 6)
+                arrowX - headLength * Math.cos(arrowAngle - Math.PI / 6),
+                arrowY - headLength * Math.sin(arrowAngle - Math.PI / 6)
             );
             ctx.lineTo(
-                endX - headLength * Math.cos(angle + Math.PI / 6),
-                endY - headLength * Math.sin(angle + Math.PI / 6)
+                arrowX - headLength * Math.cos(arrowAngle + Math.PI / 6),
+                arrowY - headLength * Math.sin(arrowAngle + Math.PI / 6)
             );
             ctx.closePath();
             ctx.fillStyle = ctx.strokeStyle;
             ctx.fill();
 
-            // Reset style after drawing
-            if (isHighlighted) {
-                ctx.strokeStyle = '#adb5bd';
-                ctx.lineWidth = 2 / scale;
-            }
-
-            // Draw edge name if provided
             if (edgeName) {
-                const midX = (startX + endX) / 2;
-                const midY = (startY + endY) / 2;
-                
-                // Calculate offset perpendicular to the edge
-                const offsetDistance = 10;
-                const perpAngle = angle + Math.PI / 2;
-                const labelX = midX + offsetDistance * Math.cos(perpAngle);
-                const labelY = midY + offsetDistance * Math.sin(perpAngle);
-                
-                // Draw background rectangle for better readability
-                ctx.font = `${10 / scale}px sans-serif`;
-                const textMetrics = ctx.measureText(edgeName);
-                const textWidth = textMetrics.width;
-                const textHeight = 12 / scale;
-                const padding = 4 / scale;
-                
-                ctx.fillStyle = isHighlighted ? 'rgba(102, 126, 234, 0.95)' : 'rgba(255, 255, 255, 0.9)';
-                ctx.fillRect(
-                    labelX - textWidth / 2 - padding,
-                    labelY - textHeight / 2 - padding,
-                    textWidth + padding * 2,
-                    textHeight + padding * 2
-                );
-                
-                // Draw text
-                ctx.fillStyle = isHighlighted ? '#fff' : '#495057';
-                ctx.font = `bold ${10 / scale}px sans-serif`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(edgeName, labelX, labelY);
+                const labelX = x + loopOffsetX;
+                const labelY = y + loopOffsetY - loopRadius - 10;
+                drawEdgeLabel(labelX, labelY, edgeName, isHighlighted);
             }
+        }
+
+        function drawCurvedEdge(x1, y1, x2, y2, curveOffset, edgeName, isHighlighted) {
+            const radius = 30;
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            const angle = Math.atan2(dy, dx);
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            const startX = x1 + radius * Math.cos(angle);
+            const startY = y1 + radius * Math.sin(angle);
+            const endX = x2 - radius * Math.cos(angle);
+            const endY = y2 - radius * Math.sin(angle);
+
+            const midX = (startX + endX) / 2;
+            const midY = (startY + endY) / 2;
+
+            const perpAngle = angle + Math.PI / 2;
+            const controlX = midX + curveOffset * Math.cos(perpAngle);
+            const controlY = midY + curveOffset * Math.sin(perpAngle);
+
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.quadraticCurveTo(controlX, controlY, endX, endY);
+            ctx.stroke();
+
+            const t = 0.95;
+            const curvePointX = (1-t)*(1-t)*startX + 2*(1-t)*t*controlX + t*t*endX;
+            const curvePointY = (1-t)*(1-t)*startY + 2*(1-t)*t*controlY + t*t*endY;
+            const tangentAngle = Math.atan2(
+                2*(1-t)*(controlY - startY) + 2*t*(endY - controlY),
+                2*(1-t)*(controlX - startX) + 2*t*(endX - controlX)
+            );
+
+            const headLength = 15;
+            ctx.beginPath();
+            ctx.moveTo(endX, endY);
+            ctx.lineTo(
+                endX - headLength * Math.cos(tangentAngle - Math.PI / 6),
+                endY - headLength * Math.sin(tangentAngle - Math.PI / 6)
+            );
+            ctx.lineTo(
+                endX - headLength * Math.cos(tangentAngle + Math.PI / 6),
+                endY - headLength * Math.sin(tangentAngle + Math.PI / 6)
+            );
+            ctx.closePath();
+            ctx.fillStyle = ctx.strokeStyle;
+            ctx.fill();
+
+            if (edgeName) {
+                const labelT = 0.5;
+                const labelX = (1-labelT)*(1-labelT)*startX + 2*(1-labelT)*labelT*controlX + labelT*labelT*endX;
+                const labelY = (1-labelT)*(1-labelT)*startY + 2*(1-labelT)*labelT*controlY + labelT*labelT*endY;
+                drawEdgeLabel(labelX, labelY, edgeName, isHighlighted);
+            }
+        }
+
+        function drawEdgeLabel(labelX, labelY, edgeName, isHighlighted) {
+            ctx.font = `${10 / scale}px sans-serif`;
+            const textMetrics = ctx.measureText(edgeName);
+            const textWidth = textMetrics.width;
+            const textHeight = 12 / scale;
+            const padding = 4 / scale;
+            
+            ctx.fillStyle = isHighlighted ? 'rgba(102, 126, 234, 0.95)' : 'rgba(255, 255, 255, 0.9)';
+            ctx.fillRect(
+                labelX - textWidth / 2 - padding,
+                labelY - textHeight / 2 - padding,
+                textWidth + padding * 2,
+                textHeight + padding * 2
+            );
+            
+            ctx.fillStyle = isHighlighted ? '#fff' : '#495057';
+            ctx.font = `bold ${10 / scale}px sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(edgeName, labelX, labelY);
         }
 
         function startWalk() {
@@ -598,9 +562,18 @@
         function updateStatus() {
             const statusEl = document.getElementById('status');
             if (currentIndex >= 0 && currentIndex < currentSequence.length) {
-                const currentVertex = currentModel.vertices.find(v => v.id === currentSequence[currentIndex].node);
-                const nodeName = currentVertex ? currentVertex.name : currentSequence[currentIndex].node;
-                statusEl.innerHTML = `Current Node: <strong>${nodeName}</strong> | Step: <strong>${currentIndex + 1}/${currentSequence.length}</strong>`;
+                const currentStep = currentSequence[currentIndex];
+                let displayName = '';
+                
+                if (currentStep.type === 'vertex') {
+                    const vertex = currentModel.vertices.find(v => v.id === currentStep.id);
+                    displayName = vertex ? vertex.name : currentStep.id;
+                } else if (currentStep.type === 'edge') {
+                    const edge = currentModel.edges.find(e => e.id === currentStep.id);
+                    displayName = edge ? edge.name : currentStep.id;
+                }
+                
+                statusEl.innerHTML = `Current: <strong>${displayName}</strong> (${currentStep.type}) | Step: <strong>${currentIndex + 1}/${currentSequence.length}</strong>`;
             }
         }
 
@@ -608,8 +581,10 @@
             const imageContainer = document.getElementById('imageContainer');
             if (currentIndex >= 0 && currentIndex < currentSequence.length) {
                 const currentStep = currentSequence[currentIndex];
-                if (currentStep.image) {
-                    imageContainer.innerHTML = `<img src="${currentStep.image}" alt="Node ${currentStep.node}">`;
+                if (currentStep.type === 'vertex' && currentStep.image) {
+                    imageContainer.innerHTML = `<img src="${currentStep.image}" alt="Node ${currentStep.id}">`;
+                } else if (currentStep.type === 'edge') {
+                    imageContainer.innerHTML = '<span class="no-image">Edge: No image</span>';
                 } else {
                     imageContainer.innerHTML = '<span class="no-image">No image available</span>';
                 }
@@ -630,7 +605,6 @@
             animate();
         }
 
-        // Zoom and Pan functions
         function zoomIn() {
             scale *= 1.2;
             drawGraph();
@@ -651,7 +625,6 @@
         function fitToScreen() {
             if (currentModel.vertices.length === 0) return;
             
-            // Calculate bounds
             let minX = Infinity, minY = Infinity;
             let maxX = -Infinity, maxY = -Infinity;
             
@@ -662,8 +635,7 @@
                 maxY = Math.max(maxY, v.properties.y);
             });
             
-            // Add padding
-            const padding = 60;
+            const padding = 100;
             minX -= padding;
             minY -= padding;
             maxX += padding;
@@ -672,19 +644,16 @@
             const graphWidth = maxX - minX;
             const graphHeight = maxY - minY;
             
-            // Calculate scale to fit
             const scaleX = canvas.width / graphWidth;
             const scaleY = canvas.height / graphHeight;
-            scale = Math.min(scaleX, scaleY) * 0.9; // 0.9 for extra margin
+            scale = Math.min(scaleX, scaleY) * 0.9;
             
-            // Center the graph
             offsetX = (canvas.width - graphWidth * scale) / 2 - minX * scale;
             offsetY = (canvas.height - graphHeight * scale) / 2 - minY * scale;
             
             drawGraph();
         }
 
-        // Mouse event handlers
         function handleMouseDown(e) {
             isDragging = true;
             dragStartX = e.offsetX - offsetX;
@@ -709,15 +678,12 @@
             const mouseX = e.offsetX;
             const mouseY = e.offsetY;
             
-            // Get point in graph coordinates before zoom
             const graphX = (mouseX - offsetX) / scale;
             const graphY = (mouseY - offsetY) / scale;
             
-            // Apply zoom
             const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
             scale *= zoomFactor;
             
-            // Adjust offset to keep the point under the mouse
             offsetX = mouseX - graphX * scale;
             offsetY = mouseY - graphY * scale;
             
