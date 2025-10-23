@@ -42,6 +42,56 @@
             justify-content: center;
             gap: 15px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .velocity-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f1f3f5;
+            border-radius: 8px;
+        }
+
+        .velocity-control label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .velocity-control input[type="range"] {
+            width: 200px;
+            cursor: pointer;
+        }
+
+        .velocity-control span {
+            min-width: 60px;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .btn-play {
+            background: #20c997;
+            color: white;
+        }
+
+        .btn-play:hover {
+            background: #17a87e;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(32, 201, 151, 0.4);
+        }
+
+        .btn-stop {
+            background: #fa5252;
+            color: white;
+        }
+
+        .btn-stop:hover {
+            background: #e03131;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(250, 82, 82, 0.4);
         }
 
         .zoom-controls {
@@ -192,8 +242,16 @@
 
         <div class="controls">
             <button class="btn-start" onclick="startWalk()">Start Walk</button>
+            <button class="btn-play" id="playBtn" onclick="playSequence()" disabled>▶ Play All</button>
+            <button class="btn-stop" id="stopBtn" onclick="stopSequence()" disabled style="display:none;">⏸ Pause</button>
             <button class="btn-prev" id="prevBtn" onclick="previousNode()" disabled>Previous</button>
             <button class="btn-next" id="nextBtn" onclick="nextNode()" disabled>Next</button>
+        </div>
+
+        <div class="velocity-control">
+            <label for="velocitySlider">Playback Speed:</label>
+            <input type="range" id="velocitySlider" min="100" max="3000" value="1000" step="100">
+            <span id="velocityValue">1.0x</span>
         </div>
 
         <div class="zoom-controls">
@@ -281,6 +339,10 @@
         let dragStartX = 0;
         let dragStartY = 0;
 
+        let playbackSpeed = 1000;
+        let playbackInterval = null;
+        let isPlaying = false;
+
         // Track duplicate edges for curve calculation
         let edgeCounts = {};
 
@@ -298,6 +360,24 @@
             canvas.addEventListener('mouseup', handleMouseUp);
             canvas.addEventListener('mouseleave', handleMouseUp);
             canvas.addEventListener('wheel', handleWheel);
+            
+            // Velocity slider
+            const velocitySlider = document.getElementById('velocitySlider');
+            velocitySlider.addEventListener('input', function() {
+                playbackSpeed = parseInt(this.value);
+                const speed = (3000 - playbackSpeed + 100) / 1000;
+                document.getElementById('velocityValue').textContent = speed.toFixed(1) + 'x';
+                
+                // Restart playback with new speed if currently playing
+                if (isPlaying) {
+                    stopSequence();
+                    playSequence();
+                }
+            });
+            
+            // Initialize velocity display
+            const speed = (3000 - playbackSpeed + 100) / 1000;
+            document.getElementById('velocityValue').textContent = speed.toFixed(1) + 'x';
         };
 
         window.onresize = function() {
@@ -526,12 +606,54 @@
         }
 
         function startWalk() {
+            stopSequence(); // Stop any ongoing playback
             currentSequence = graphData.sequence;
             currentIndex = 0;
             updateControls();
             updateStatus();
             updateImage();
             drawGraph();
+        }
+
+        function playSequence() {
+            if (currentSequence.length === 0) {
+                startWalk();
+            }
+            
+            isPlaying = true;
+            updatePlaybackButtons();
+            
+            playbackInterval = setInterval(function() {
+                if (currentIndex < currentSequence.length - 1) {
+                    nextNode();
+                } else {
+                    stopSequence();
+                }
+            }, playbackSpeed);
+        }
+
+        function stopSequence() {
+            isPlaying = false;
+            if (playbackInterval) {
+                clearInterval(playbackInterval);
+                playbackInterval = null;
+            }
+            updatePlaybackButtons();
+        }
+
+        function updatePlaybackButtons() {
+            const playBtn = document.getElementById('playBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            
+            if (isPlaying) {
+                playBtn.style.display = 'none';
+                stopBtn.style.display = 'inline-block';
+                stopBtn.disabled = false;
+            } else {
+                playBtn.style.display = 'inline-block';
+                stopBtn.style.display = 'none';
+                playBtn.disabled = currentSequence.length === 0;
+            }
         }
 
         function nextNode() {
@@ -541,6 +663,8 @@
                 updateStatus();
                 updateImage();
                 animateTransition();
+            } else if (isPlaying) {
+                stopSequence();
             }
         }
 
@@ -555,8 +679,9 @@
         }
 
         function updateControls() {
-            document.getElementById('prevBtn').disabled = currentIndex <= 0;
-            document.getElementById('nextBtn').disabled = currentIndex >= currentSequence.length - 1;
+            document.getElementById('prevBtn').disabled = currentIndex <= 0 || isPlaying;
+            document.getElementById('nextBtn').disabled = currentIndex >= currentSequence.length - 1 || isPlaying;
+            updatePlaybackButtons();
         }
 
         function updateStatus() {
