@@ -278,41 +278,43 @@
     </div>
 
     <script>
-        // Graph data following GraphWalker JSON schema
+        // Refactored Graph data structure
         const graphData = {
-            name: "Sample Graph Model",
-            selectedModelIndex: 0,
-            selectedElementId: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-            models: [
-                {
-                    id: "model-001",
-                    name: "Main Navigation Flow",
-                    generator: "random(edge_coverage(100))",
-                    startElementId: "vertex-a",
-                    vertices: [
-                        { id: "vertex-a", name: "Start", properties: { x: 150, y: 150 } },
-                        { id: "vertex-b", name: "Dashboard", properties: { x: 400, y: 100 } },
-                        { id: "vertex-c", name: "Profile", properties: { x: 650, y: 150 } },
-                        { id: "vertex-d", name: "Settings", properties: { x: 400, y: 300 } },
-                        { id: "vertex-e", name: "Help", properties: { x: 150, y: 350 } },
-                        { id: "vertex-f", name: "Logout", properties: { x: 650, y: 350 } }
-                    ],
-                    edges: [
-                        { id: "edge-a-b", name: "e_NavigateToDashboard", sourceVertexId: "vertex-a", targetVertexId: "vertex-b", actions: ["clickDashboard"], guard: "" },
-                        { id: "edge-b-c", name: "e_ViewProfile", sourceVertexId: "vertex-b", targetVertexId: "vertex-c", actions: ["clickProfile"], guard: "" },
-                        { id: "edge-c-d", name: "e_OpenSettings", sourceVertexId: "vertex-c", targetVertexId: "vertex-d", actions: ["clickSettings"], guard: "" },
-                        { id: "edge-d-a", name: "e_BackToStart", sourceVertexId: "vertex-d", targetVertexId: "vertex-a", actions: ["clickHome"], guard: "" },
-                        { id: "edge-a-e", name: "e_GetHelp", sourceVertexId: "vertex-a", targetVertexId: "vertex-e", actions: ["clickHelp"], guard: "" },
-                        { id: "edge-e-d", name: "e_HelpToSettings", sourceVertexId: "vertex-e", targetVertexId: "vertex-d", actions: ["navigateSettings"], guard: "" },
-                        { id: "edge-b-d", name: "e_QuickSettings", sourceVertexId: "vertex-b", targetVertexId: "vertex-d", actions: ["quickAccess"], guard: "" },
-                        { id: "edge-c-f", name: "e_Logout", sourceVertexId: "vertex-c", targetVertexId: "vertex-f", actions: ["clickLogout"], guard: "" },
-                        { id: "edge-f-d", name: "e_LogoutToSettings", sourceVertexId: "vertex-f", targetVertexId: "vertex-d", actions: ["goToSettings"], guard: "" },
-                        // Multiple self-loops added to test non-overlapping logic
-                        { id: "edge-a-a", name: "e_SelfLoop_1", sourceVertexId: "vertex-a", targetVertexId: "vertex-a", actions: ["refresh"], guard: "" },
-                        { id: "edge-a-a-2", name: "e_SelfLoop_2", sourceVertexId: "vertex-a", targetVertexId: "vertex-a", actions: ["refreshAgain"], guard: "" }
-                    ]
-                }
-            ],
+            graphwalkermodel: {
+                name: "Sample Graph Model",
+                selectedModelIndex: 0,
+                selectedElementId: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                models: [
+                    {
+                        id: "model-001",
+                        name: "Main Navigation Flow",
+                        generator: "random(edge_coverage(100))",
+                        startElementId: "vertex-a",
+                        vertices: [
+                            { id: "vertex-a", name: "Start", properties: { x: 150, y: 150 } },
+                            { id: "vertex-b", name: "Dashboard", properties: { x: 400, y: 100 } },
+                            { id: "vertex-c", name: "Profile", properties: { x: 650, y: 150 } },
+                            { id: "vertex-d", name: "Settings", properties: { x: 400, y: 300 } },
+                            { id: "vertex-e", name: "Help", properties: { x: 150, y: 350 } },
+                            { id: "vertex-f", name: "Logout", properties: { x: 650, y: 350 } }
+                        ],
+                        edges: [
+                            { id: "edge-a-b", name: "e_NavigateToDashboard", sourceVertexId: "vertex-a", targetVertexId: "vertex-b", actions: ["clickDashboard"], guard: "" },
+                            { id: "edge-b-c", name: "e_ViewProfile", sourceVertexId: "vertex-b", targetVertexId: "vertex-c", actions: ["clickProfile"], guard: "" },
+                            { id: "edge-c-d", name: "e_OpenSettings", sourceVertexId: "vertex-c", targetVertexId: "vertex-d", actions: ["clickSettings"], guard: "" },
+                            { id: "edge-d-a", name: "e_BackToStart", sourceVertexId: "vertex-d", targetVertexId: "vertex-a", actions: ["clickHome"], guard: "" },
+                            { id: "edge-a-e", name: "e_GetHelp", sourceVertexId: "vertex-a", targetVertexId: "vertex-e", actions: ["clickHelp"], guard: "" },
+                            { id: "edge-e-d", name: "e_HelpToSettings", sourceVertexId: "vertex-e", targetVertexId: "vertex-d", actions: ["navigateSettings"], guard: "" },
+                            { id: "edge-b-d", name: "e_QuickSettings", sourceVertexId: "vertex-b", targetVertexId: "vertex-d", actions: ["quickAccess"], guard: "" },
+                            { id: "edge-c-f", name: "e_Logout", sourceVertexId: "vertex-c", targetVertexId: "vertex-f", actions: ["clickLogout"], guard: "" },
+                            { id: "edge-f-d", name: "e_LogoutToSettings", sourceVertexId: "vertex-f", targetVertexId: "vertex-d", actions: ["goToSettings"], guard: "" },
+                            // Multiple self-loops added to test non-overlapping logic
+                            { id: "edge-a-a", name: "e_SelfLoop_1", sourceVertexId: "vertex-a", targetVertexId: "vertex-a", actions: ["refresh"], guard: "" },
+                            { id: "edge-a-a-2", name: "e_SelfLoop_2", sourceVertexId: "vertex-a", targetVertexId: "vertex-a", actions: ["refreshAgain"], guard: "" }
+                        ]
+                    }
+                ],
+            }, // End of graphwalkermodel
             sequence: [
                 { type: "vertex", id: "vertex-a", image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzY2N2VlYSIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iNjAiIGZpbGw9IiNmZmYiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIyNCIgZmlsbD0iIzY2N2VlYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlN0YXJ0PC90ZXh0Pjwvc3ZnPg==" },
                 { type: "edge", id: "edge-a-b" },
@@ -356,7 +358,11 @@
         window.onload = function() {
             canvas = document.getElementById('canvas');
             ctx = canvas.getContext('2d');
-            currentModel = graphData.models[graphData.selectedModelIndex];
+            
+            // --- UPDATED to use the new graphwalkermodel field ---
+            const modelData = graphData.graphwalkermodel;
+            currentModel = modelData.models[modelData.selectedModelIndex];
+            // ---------------------------------------------------
             
             calculateEdgeCounts();
             resizeCanvas();
@@ -638,6 +644,46 @@
             ctx.fillText(edgeName, labelX, labelY);
         }
 
+        // --- FIX: Added missing navigation functions ---
+        function nextNode() {
+            if (currentIndex < currentSequence.length - 1) {
+                currentIndex++;
+                updateStatus();
+                updateImage();
+                updateControls();
+                animateTransition();
+            }
+        }
+
+        function previousNode() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateStatus();
+                updateImage();
+                updateControls();
+                animateTransition();
+            }
+        }
+        
+        // --- FIX: Added missing playback control function ---
+        function updatePlaybackButtons() {
+            const playBtn = document.getElementById('playBtn');
+            const stopBtn = document.getElementById('stopBtn');
+
+            if (isPlaying) {
+                playBtn.style.display = 'none';
+                stopBtn.style.display = 'inline-block';
+            } else {
+                playBtn.style.display = 'inline-block';
+                stopBtn.style.display = 'none';
+            }
+            
+            // Disable play button if there is no sequence to play
+            playBtn.disabled = currentSequence.length === 0;
+            stopBtn.disabled = !isPlaying;
+        }
+        // ----------------------------------------------------
+
         function startWalk() {
             stopSequence(); // Stop any ongoing playback
             currentSequence = graphData.sequence;
@@ -672,43 +718,6 @@
                 playbackInterval = null;
             }
             updatePlaybackButtons();
-        }
-
-        function updatePlaybackButtons() {
-            const playBtn = document.getElementById('playBtn');
-            const stopBtn = document.getElementById('stopBtn');
-            
-            if (isPlaying) {
-                playBtn.style.display = 'none';
-                stopBtn.style.display = 'inline-block';
-                stopBtn.disabled = false;
-            } else {
-                playBtn.style.display = 'inline-block';
-                stopBtn.style.display = 'none';
-                playBtn.disabled = currentSequence.length === 0;
-            }
-        }
-
-        function nextNode() {
-            if (currentIndex < currentSequence.length - 1) {
-                currentIndex++;
-                updateControls();
-                updateStatus();
-                updateImage();
-                animateTransition();
-            } else if (isPlaying) {
-                stopSequence();
-            }
-        }
-
-        function previousNode() {
-            if (currentIndex > 0) {
-                currentIndex--;
-                updateControls();
-                updateStatus();
-                updateImage();
-                animateTransition();
-            }
         }
 
         function updateControls() {
