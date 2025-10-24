@@ -307,7 +307,9 @@
                         { id: "edge-b-d", name: "e_QuickSettings", sourceVertexId: "vertex-b", targetVertexId: "vertex-d", actions: ["quickAccess"], guard: "" },
                         { id: "edge-c-f", name: "e_Logout", sourceVertexId: "vertex-c", targetVertexId: "vertex-f", actions: ["clickLogout"], guard: "" },
                         { id: "edge-f-d", name: "e_LogoutToSettings", sourceVertexId: "vertex-f", targetVertexId: "vertex-d", actions: ["goToSettings"], guard: "" },
-                        { id: "edge-a-a", name: "e_SelfLoop", sourceVertexId: "vertex-a", targetVertexId: "vertex-a", actions: ["refresh"], guard: "" }
+                        // Multiple self-loops added to test non-overlapping logic
+                        { id: "edge-a-a", name: "e_SelfLoop_1", sourceVertexId: "vertex-a", targetVertexId: "vertex-a", actions: ["refresh"], guard: "" },
+                        { id: "edge-a-a-2", name: "e_SelfLoop_2", sourceVertexId: "vertex-a", targetVertexId: "vertex-a", actions: ["refreshAgain"], guard: "" }
                     ]
                 }
             ],
@@ -324,6 +326,11 @@
                 { type: "edge", id: "edge-e-d" },
                 { type: "vertex", id: "vertex-e", image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzIwYzk5NyIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iNzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxNSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjI0IiBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+SGVscDwvdGV4dD48L3N2Zz4=" },
                 { type: "edge", id: "edge-d-a" },
+                { type: "vertex", id: "vertex-a" },
+                // Sequence additions for testing multi-self-loops
+                { type: "edge", id: "edge-a-a" },
+                { type: "vertex", id: "vertex-a" },
+                { type: "edge", id: "edge-a-a-2" },
                 { type: "vertex", id: "vertex-a" }
             ]
         };
@@ -399,7 +406,10 @@
                 if (!edgeCounts[key]) edgeCounts[key] = [];
                 edgeCounts[key].push(edge.id);
                 
-                if (!edgeCounts[reverseKey]) edgeCounts[reverseKey] = [];
+                // For non-self loops, ensure reverse key exists to properly calculate curve offsets
+                if (key !== reverseKey && !edgeCounts[reverseKey]) {
+                    edgeCounts[reverseKey] = [];
+                }
             });
         }
 
@@ -423,7 +433,8 @@
                     const key = `${edge.sourceVertexId}-${edge.targetVertexId}`;
                     const reverseKey = `${edge.targetVertexId}-${edge.sourceVertexId}`;
                     const edgeIndex = edgeCounts[key].indexOf(edge.id);
-                    const hasReverse = edgeCounts[reverseKey] && edgeCounts[reverseKey].length > 0;
+                    // Check if reverse edges exist (only relevant for non-self loops)
+                    const hasReverse = key !== reverseKey && edgeCounts[reverseKey] && edgeCounts[reverseKey].length > 0;
                     
                     drawCurvedArrow(
                         fromNode.properties.x, fromNode.properties.y,
@@ -480,8 +491,12 @@
             }
 
             if (isSelfLoop) {
-                drawSelfLoop(x1, y1, edgeName, isHighlighted);
+                // Pass edgeIndex for non-overlapping drawing
+                drawSelfLoop(x1, y1, edgeName, isHighlighted, edgeIndex); 
             } else {
+                // Use a curve offset for non-self loops that share the same direction
+                const key = `${x1}-${y1}-${x2}-${y2}`;
+                // This logic is for drawing parallel edges nicely. The original code's logic handles it.
                 const curveOffset = hasReverse ? 20 + (edgeIndex * 15) : 0;
                 drawCurvedEdge(x1, y1, x2, y2, curveOffset, edgeName, isHighlighted);
             }
@@ -492,38 +507,56 @@
             }
         }
 
-        function drawSelfLoop(x, y, edgeName, isHighlighted) {
-            const radius = 30;
-            const loopRadius = 40;
-            const loopOffsetX = 0;
-            const loopOffsetY = -radius - loopRadius;
-            
+        // Modified: Draws non-overlapping concentric self-loops
+        function drawSelfLoop(x, y, edgeName, isHighlighted, edgeIndex) {
+            const NODE_RADIUS = 30;
+            const ARC_RADIUS_BASE = 15; // Minimum arc distance from node edge
+            const SPACING = 15; // Spacing between multiple arcs
+
+            // The effective radius of the arc, measured from the node center (x, y)
+            // Each subsequent loop is drawn further out
+            const effectiveRadius = NODE_RADIUS + ARC_RADIUS_BASE + (edgeIndex * SPACING);
+
+            // Start and end angles for the top-side arc loop
+            const startAngle = -Math.PI * 0.8; // e.g., ~-144 degrees (starts top-left of the node)
+            const endAngle = -Math.PI * 0.2;   // e.g., ~-36 degrees (ends top-right of the node)
+
             ctx.beginPath();
-            ctx.arc(x + loopOffsetX, y + loopOffsetY, loopRadius, 0, Math.PI * 2);
+            // Draw the arc centered at the node
+            ctx.arc(x, y, effectiveRadius, startAngle, endAngle, false);
             ctx.stroke();
 
-            const arrowX = x;
-            const arrowY = y - radius;
-            const arrowAngle = -Math.PI / 2;
+            // --- Arrowhead drawing at the end of the arc (endAngle) ---
             const headLength = 12;
-            
+
+            // Calculate the position of the arrowhead on the arc's end point
+            const arrowHeadPointX = x + effectiveRadius * Math.cos(endAngle);
+            const arrowHeadPointY = y + effectiveRadius * Math.sin(endAngle);
+
+            // The tangent angle at the end point (direction of the arrow pointing along the arc)
+            // For an arc centered at (x, y), the tangent angle is endAngle + PI/2.
+            const tangentAngle = endAngle + Math.PI / 2;
+
             ctx.beginPath();
-            ctx.moveTo(arrowX, arrowY);
+            ctx.moveTo(arrowHeadPointX, arrowHeadPointY);
+            // Draw arrowhead lines
             ctx.lineTo(
-                arrowX - headLength * Math.cos(arrowAngle - Math.PI / 6),
-                arrowY - headLength * Math.sin(arrowAngle - Math.PI / 6)
+                arrowHeadPointX - headLength * Math.cos(tangentAngle - Math.PI / 6),
+                arrowHeadPointY - headLength * Math.sin(tangentAngle - Math.PI / 6)
             );
             ctx.lineTo(
-                arrowX - headLength * Math.cos(arrowAngle + Math.PI / 6),
-                arrowY - headLength * Math.sin(arrowAngle + Math.PI / 6)
+                arrowHeadPointX - headLength * Math.cos(tangentAngle + Math.PI / 6),
+                arrowHeadPointY - headLength * Math.sin(tangentAngle + Math.PI / 6)
             );
             ctx.closePath();
             ctx.fillStyle = ctx.strokeStyle;
             ctx.fill();
 
+            // --- Label drawing ---
             if (edgeName) {
-                const labelX = x + loopOffsetX;
-                const labelY = y + loopOffsetY - loopRadius - 10;
+                // Label is placed above the arc's apex (angle -PI/2)
+                const labelX = x;
+                const labelY = y - effectiveRadius - (10 / scale);
                 drawEdgeLabel(labelX, labelY, edgeName, isHighlighted);
             }
         }
