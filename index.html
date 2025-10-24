@@ -334,7 +334,39 @@
                 { type: "vertex", id: "vertex-a" },
                 { type: "edge", id: "edge-a-a-2" },
                 { type: "vertex", id: "vertex-a" }
-            ]
+            ],
+            // START: New simulationSummary field
+            simulationSummary: {
+                "errors": [],
+                "results": {
+                    "map": {
+                        "totalFailedNumberOfModels": 0,
+                        "totalNotExecutedNumberOfModels": 0,
+                        "totalNumberOfUnvisitedVertices": 0,
+                        "verticesNotVisited": {
+                            "myArrayList": []
+                        },
+                        "totalNumberOfModels": 1,
+                        "totalCompletedNumberOfModels": 1,
+                        "totalNumberOfVisitedEdges": 8,
+                        "totalIncompleteNumberOfModels": 0,
+                        "edgesNotVisited": {
+                            "myArrayList": [
+                                "edge-c-d",
+                                "edge-a-e",
+                                "edge-b-d"
+                            ]
+                        },
+                        "vertexCoverage": 100,
+                        "totalNumberOfEdges": 11,
+                        "totalNumberOfVisitedVertices": 6,
+                        "edgeCoverage": 72,
+                        "totalNumberOfVertices": 6,
+                        "totalNumberOfUnvisitedEdges": 3
+                    }
+                }
+            }
+            // END: New simulationSummary field
         };
 
         let currentSequence = [];
