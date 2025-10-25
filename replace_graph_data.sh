@@ -1,83 +1,83 @@
 #!/bin/bash
 
-# Script to replace the content of the 'graphData' JavaScript object
-# in the index.html file with the content of an external JSON file.
-
-# --- Configuration ---
+# --- CONFIGURATION ---
 HTML_FILE="index.html"
 START_MARKER="// START_GRAPHDATA_JSON"
 END_MARKER="// END_GRAPHDATA_JSON"
+# ---------------------
 
-# --- Argument Validation ---
-
-# 1. Check if the JSON file path is provided
+# 1. Input Validation and Setup
 if [ -z "$1" ]; then
-    echo "Error: Missing argument."
-    echo "Usage: $0 <path/to/your/data.json>"
+    echo "Error: Missing JSON file path."
+    echo "Usage: $0 <path_to_json_file>"
     exit 1
 fi
 
-JSON_FILE="$1"
+JSON_PATH="$1"
 
-# 2. Check if the JSON file exists
-if [ ! -f "$JSON_FILE" ]; then
-    echo "Error: JSON file not found at '$JSON_FILE'"
+if [ ! -f "$JSON_PATH" ]; then
+    echo "Error: JSON file not found at '$JSON_PATH'."
     exit 1
 fi
 
-# 3. Check if the HTML file exists
 if [ ! -f "$HTML_FILE" ]; then
-    echo "Error: HTML file not found at '$HTML_FILE'. Ensure the script is run in the correct directory."
+    echo "Error: HTML file not found at '$HTML_FILE'."
     exit 1
 fi
 
-# --- Content Preparation and Replacement ---
+# 2. Prepare the full replacement content with markers
+# Create a temporary file containing the markers AND the JSON data.
+# This entire file will be read by awk via a pipe, bypassing the ARG_MAX limit.
+TEMP_REPLACEMENT_FILE=$(mktemp)
+echo "$START_MARKER" > "$TEMP_REPLACEMENT_FILE"
+cat "$JSON_PATH" >> "$TEMP_REPLACEMENT_FILE"
+echo "$END_MARKER" >> "$TEMP_REPLACEMENT_FILE"
 
-# 1. Escape the JSON content for insertion into the sed command.
-#    This process escapes backslashes and forward slashes, ensuring sed's
-#    'r' (read) command correctly inserts the multi-line content.
-#    We will use 'r' (read) command along with 'd' (delete) to achieve replacement.
+# 3. Perform in-place replacement using awk
+# We use a combined input stream: the HTML file and the temporary replacement file.
+# Awk reads the replacement data from File Descriptor 3 (<(cat "$TEMP_REPLACEMENT_FILE")).
+# It is important to note the use of 'gawk' (GNU Awk) which is standard on most Linux systems.
+TEMP_OUTPUT_FILE=$(mktemp)
 
-# 2. Perform the replacement using sed.
+awk -v start="$START_MARKER" \
+    -v end="$END_MARKER" \
+    '
+    # Start by reading the replacement content from the piped file (FD 3)
+    BEGIN {
+        # Loop reads the *entire* replacement file content into the replacement_data array
+        while ((getline line < "/dev/fd/3") > 0) {
+            replacement_data[i++] = line
+        }
+    }
 
-# NOTE: The content of the JSON file MUST be a valid JavaScript object
-# (i.e., only the object content inside the outermost curly braces,
-# WITHOUT "const graphData = "). The script will automatically add the 
-# necessary indentation (tab character) for better readability.
+    $0 ~ start {
+        # Found start: Print the replacement content and set the flag to skip lines
+        for (j=0; j < i; j++) {
+            print replacement_data[j]
+        }
+        in_block = 1
+        next
+    }
 
-# Create a temporary file to hold the JSON content with correct indentation for insertion.
-TEMP_JSON=$(mktemp)
-# Add an extra tab indent to every line of the JSON file content
-sed 's/^/\t\t\t/' "$JSON_FILE" > "$TEMP_JSON"
+    $0 ~ end {
+        # Found end: Unset the skip flag
+        in_block = 0
+        next
+    }
 
-# Use sed to perform the block replacement in-place.
-# Explanation of the sed command:
-# 1. '/START_MARKER/,/END_MARKER/{ ... }': Defines the address range to operate on.
-# 2. 'd': Deletes the content in the range (the existing graphData body).
-# 3. 'r TEMP_JSON': Reads the prepared JSON content from the temp file immediately
-#    after the START_MARKER line (which is now deleted, so the new content goes 
-#    where the old content started).
-# 4. '}' closes the operation block.
+    in_block == 0 {
+        # If not inside the block to be replaced, print the line
+        print $0
+    }
+    ' "$HTML_FILE" 3< "$TEMP_REPLACEMENT_FILE" > "$TEMP_OUTPUT_FILE"
 
-# NOTE: This uses the GNU sed syntax for in-place editing.
-sed -i.bak -e "/$START_MARKER/{
-r $TEMP_JSON
-}" \
--e "/$START_MARKER/,/$END_MARKER/{
-/START_GRAPHDATA_JSON/b
-/END_GRAPHDATA_JSON/b
-d
-}" "$HTML_FILE"
-
-# Clean up the temporary file
-rm "$TEMP_JSON"
-
-# Inform the user
+# 4. Replace the original file and clean up
 if [ $? -eq 0 ]; then
-    echo "Successfully replaced 'graphData' content in '$HTML_FILE' with data from '$JSON_FILE'."
-    echo "A backup file, '$HTML_FILE.bak', was created."
+    mv "$TEMP_OUTPUT_FILE" "$HTML_FILE"
+    echo "✅ Successfully replaced the section in '$HTML_FILE' with content from '$JSON_PATH'."
 else
-    echo "An error occurred during sed replacement."
+    echo "❌ Error: Awk replacement failed. HTML file was not modified."
+    rm "$TEMP_OUTPUT_FILE"
 fi
 
-# End of Script
+rm "$TEMP_REPLACEMENT_FILE"
