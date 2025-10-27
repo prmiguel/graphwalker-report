@@ -257,7 +257,7 @@
         <div class="zoom-controls">
             <button class="btn-zoom" onclick="zoomIn()">🔍 Zoom In</button>
             <button class="btn-zoom" onclick="zoomOut()">🔍 Zoom Out</button>
-            <button class="btn-zoom" onclick="resetZoom()">↺ Reset</button>
+            <button class="btn-zoom" onclick="resetZoom()">↻ Reset</button>
             <button class="btn-zoom" onclick="fitToScreen()">⛶ Fit to Screen</button>
         </div>
 
@@ -490,8 +490,24 @@
                     currentSequence[currentIndex].id === vertex.id;
                 const isInPath = currentSequence.some(seq => seq.type === 'vertex' && seq.id === vertex.id);
                 
+                // Draw rounded rectangle instead of circle
+                const rectWidth = 80;
+                const rectHeight = 50;
+                const cornerRadius = 15;
+                const x = vertex.properties.x - rectWidth / 2;
+                const y = vertex.properties.y - rectHeight / 2;
+                
                 ctx.beginPath();
-                ctx.arc(vertex.properties.x, vertex.properties.y, 30, 0, Math.PI * 2);
+                ctx.moveTo(x + cornerRadius, y);
+                ctx.lineTo(x + rectWidth - cornerRadius, y);
+                ctx.arcTo(x + rectWidth, y, x + rectWidth, y + cornerRadius, cornerRadius);
+                ctx.lineTo(x + rectWidth, y + rectHeight - cornerRadius);
+                ctx.arcTo(x + rectWidth, y + rectHeight, x + rectWidth - cornerRadius, y + rectHeight, cornerRadius);
+                ctx.lineTo(x + cornerRadius, y + rectHeight);
+                ctx.arcTo(x, y + rectHeight, x, y + rectHeight - cornerRadius, cornerRadius);
+                ctx.lineTo(x, y + cornerRadius);
+                ctx.arcTo(x, y, x + cornerRadius, y, cornerRadius);
+                ctx.closePath();
                 
                 if (isActive) {
                     ctx.fillStyle = '#667eea';
@@ -515,7 +531,7 @@
                 ctx.font = `bold ${12 / scale}px sans-serif`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                const label = vertex.name.length > 8 ? vertex.name.substring(0, 7) + '...' : vertex.name;
+                const label = vertex.name.length > 10 ? vertex.name.substring(0, 9) + '...' : vertex.name;
                 ctx.fillText(label, vertex.properties.x, vertex.properties.y);
             });
             
@@ -549,13 +565,14 @@
 
         // Modified: Draws non-overlapping concentric self-loops
         function drawSelfLoop(x, y, edgeName, isHighlighted, edgeIndex) {
-            const NODE_RADIUS = 30;
+            const RECT_WIDTH = 80;
+            const RECT_HEIGHT = 50;
             const ARC_RADIUS_BASE = 15; // Minimum arc distance from node edge
             const SPACING = 15; // Spacing between multiple arcs
 
             // The effective radius of the arc, measured from the node center (x, y)
             // Each subsequent loop is drawn further out
-            const effectiveRadius = NODE_RADIUS + ARC_RADIUS_BASE + (edgeIndex * SPACING);
+            const effectiveRadius = RECT_HEIGHT / 2 + ARC_RADIUS_BASE + (edgeIndex * SPACING);
 
             // Start and end angles for the top-side arc loop
             const startAngle = -Math.PI * 0.8; // e.g., ~-144 degrees (starts top-left of the node)
@@ -602,16 +619,18 @@
         }
 
         function drawCurvedEdge(x1, y1, x2, y2, curveOffset, edgeName, isHighlighted) {
-            const radius = 30;
+            const rectWidth = 80;
+            const rectHeight = 50;
+            
             const dx = x2 - x1;
             const dy = y2 - y1;
             const angle = Math.atan2(dy, dx);
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            const startX = x1 + radius * Math.cos(angle);
-            const startY = y1 + radius * Math.sin(angle);
-            const endX = x2 - radius * Math.cos(angle);
-            const endY = y2 - radius * Math.sin(angle);
+            const startX = x1 + (rectWidth / 2) * Math.cos(angle);
+            const startY = y1 + (rectHeight / 2) * Math.sin(angle);
+            const endX = x2 - (rectWidth / 2) * Math.cos(angle);
+            const endY = y2 - (rectHeight / 2) * Math.sin(angle);
 
             const midX = (startX + endX) / 2;
             const midY = (startY + endY) / 2;
@@ -678,7 +697,6 @@
             ctx.fillText(edgeName, labelX, labelY);
         }
 
-        // --- FIX: Added missing navigation functions ---
         function nextNode() {
             if (currentIndex < currentSequence.length - 1) {
                 currentIndex++;
